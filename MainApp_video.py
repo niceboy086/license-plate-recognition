@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem
 #from PyQt5.QtGui import *
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import pyqtSlot, Qt, QThread, pyqtSignal
+from PyQt5.QtGui import QPixmap, QPalette
+from PyQt5.QtCore import pyqtSlot, Qt, QThread, pyqtSignal, QEvent
 from UI.ui_LicensePlate import Ui_MainWindow
 import pyqtgraph
 import numpy as np
@@ -36,6 +36,19 @@ class MainWindow(Ui_MainWindow, QMainWindow):
         self.rbtnstate = 0
         self.thrdtest = WorkerThread(self)
         self.vwthread = None
+        self.label_11.setText('<a href="https://github.com/niceboy086/license-plate-recognition">https://github.com/niceboy086/license-plate-recognition</a>')
+        self.label_13.setText('<a href="https://blog.csdn.net/ggw007">https://blog.csdn.net/ggw007</a>')
+        self.label_11.setOpenExternalLinks(True)
+        self.label_13.setOpenExternalLinks(True)
+        self.label_11.installEventFilter(self)
+        self.label_13.installEventFilter(self)
+        self.labelcolor = self.label_11.palette().color(QPalette.Window)
+        self.label_14.setText('47391900')
+        self.label_14.setStyleSheet("background-color: yellow;color: blue;font: bold;" )
+        #self.label_14.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.label_14.installEventFilter(self)
+        self.label_14.setToolTip('单击QQ号复制到剪贴板!')
+
         self.tableWidget.verticalHeader().setVisible(False)
         self.tableWidget.horizontalHeader().setStyleSheet(
             "border-bottom-width: 0.5px;border-style: outset;border-color: rgb(220,220,220);")
@@ -60,6 +73,64 @@ class MainWindow(Ui_MainWindow, QMainWindow):
         self.radioButton.toggled.connect(lambda: self.btnstate(self.radioButton))
         self.thrdtest.signUi.connect(self.acceptthreadsignal)
         self.thrdtest.finished.connect(self.threadfinished)
+
+    def eventFilter(self, obj, event):
+        if obj == self.label_11:
+            if event.type() == QEvent.Enter:
+                print("label_11 mouse enter")
+                self.label_11.setStyleSheet("background-color: yellow; ")
+                return True  # 说明这个事件已被处理，其他控件别插手
+            elif event.type() == QEvent.Leave:
+                print("label_11 mouse leave")
+                font = self.label_11.font()
+                font.setBold(False)
+                self.label_11.setFont(font)
+                self.label_11.setStyleSheet("background-color: {self.labelcolor}; ")
+                return True  # 说明这个事件已被处理，其他控件别插手
+            elif event.type() == QEvent.MouseButtonPress:
+                print("label_11 mouse MouseButtonPress")
+                font = self.label_11.font()
+                font.setBold(True)
+                self.label_11.setFont(font)
+                return True  # 说明这个事件已被处理，其他控件别插手
+            elif event.type() == QEvent.MouseButtonRelease:
+                print("label_11 mouse MouseButtonRelease")
+                font = self.label_11.font()
+                font.setBold(False)
+                self.label_11.setFont(font)
+                #return True  # 说明这个事件已被处理，其他控件别插手
+        elif obj == self.label_13:
+            if event.type() == QEvent.Enter:
+                print("label_13 mouse enter")
+                self.label_13.setStyleSheet("background-color: yellow; ")
+                return True  # 说明这个事件已被处理，其他控件别插手
+            elif event.type() == QEvent.Leave:
+                print("label_13 mouse leave")
+                font = self.label_13.font()
+                font.setBold(False)
+                self.label_13.setFont(font)
+                self.label_13.setStyleSheet("background-color: {self.labelcolor}; ")
+                return True  # 说明这个事件已被处理，其他控件别插手
+            elif event.type() == QEvent.MouseButtonPress:
+                print("label_13 mouse MouseButtonPress")
+                font = self.label_13.font()
+                font.setBold(True)
+                self.label_13.setFont(font)
+                return True  # 说明这个事件已被处理，其他控件别插手
+            elif event.type() == QEvent.MouseButtonRelease:
+                print("label_13 mouse MouseButtonRelease")
+                font = self.label_13.font()
+                font.setBold(False)
+                self.label_13.setFont(font)
+                #return True  # 说明这个事件已被处理，其他控件别插手
+        elif obj == self.label_14:
+            if event.type() == QEvent.MouseButtonRelease:
+                print("label_14 mouse MouseButtonRelease")
+                clipboard = QApplication.clipboard()
+                clipboard.setText(self.label_14.text())
+                #return True  # 说明这个事件已被处理，其他控件别插手
+
+        return QMainWindow.eventFilter(self, obj, event)  # 交由其他控件处理
 
     def recFromPic(self, filename):
         #print("*debug, xxx*, RecFromPic:", filename)
